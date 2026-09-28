@@ -1,0 +1,303 @@
+<!DOCTYPE html>
+<html lang="es" data-theme="light">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, viewport-fit=cover">
+    <title>Nottia</title>
+    <link rel="stylesheet" href="styles.css">
+</head>
+
+<body>
+
+    <div class="app">
+        <!-- SIDEBAR -->
+        <aside class="sidebar">
+            <div class="sidebar-logo">
+                <h1>Nottia</h1>
+                <span>Registro de trabajo</span>
+            </div>
+            <nav class="nav">
+                <button class="nav-item active" data-tab="dashboard" title="Dashboard">
+                    <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                        <path d="M3 12h8V3H3z" />
+                        <path d="M13 21h8v-8h-8z" />
+                        <path d="M3 21h8v-8H3z" />
+                        <path d="M13 3h8v8h-8z" />
+                    </svg>
+                    <span>Dashboard</span>
+                </button>
+                <button class="nav-item" data-tab="logs" title="Apuntes">
+                    <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                        <path
+                            d="M12 2C6.48 2 2 6.48 2 12s4.48 10 10 10 10-4.48 10-10S17.52 2 12 2zm0 18c-4.41 0-8-3.59-8-8s3.59-8 8-8 8 3.59 8 8-3.59 8-8 8z" />
+                        <path d="M12.5 7H11v6l5.25 3.15" />
+                    </svg>
+                    <span>Apuntes</span>
+                </button>
+                <button class="nav-item" data-tab="clients" title="Clientes">
+                    <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                        <path d="M17 21v-2a4 4 0 0 0-4-4H5a4 4 0 0 0-4 4v2" />
+                        <circle cx="9" cy="7" r="4" />
+                        <path d="M23 21v-2a4 4 0 0 0-3-3.87" />
+                        <path d="M16 3.13a4 4 0 0 1 0 7.75" />
+                    </svg>
+                    <span>Clientes</span>
+                </button>
+                <button class="nav-item" data-tab="export" title="Exportar">
+                    <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                        <path d="M21 15v4a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-4" />
+                        <polyline points="7 10 12 15 17 10" />
+                        <line x1="12" y1="15" x2="12" y2="3" />
+                    </svg>
+                    <span>Exportar</span>
+                </button>
+                <button class="nav-item nav-item-theme" id="themeToggle" title="Cambiar tema">
+                    <svg id="themeSvg" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                        <path d="M21 12.79A9 9 0 1 1 11.21 3 7 7 0 0 0 21 12.79z" />
+                    </svg>
+                    <span>Tema</span>
+                </button>
+            </nav>
+        </aside>
+
+        <!-- MAIN CONTENT -->
+        <main class="main">
+
+            <!-- DASHBOARD -->
+            <div class="panel active" id="dashboard">
+                <div class="page-header">
+                    <div>
+                        <div class="page-title">Dashboard</div>
+                        <div class="page-subtitle" id="dashSubtitle">Resumen general</div>
+                    </div>
+                    <button class="btn btn-primary" id="btnAddDesktop">+ Nuevo apunte</button>
+                </div>
+
+                <div class="stat-grid" id="statCards"></div>
+
+                <div class="dash-row">
+                    <div class="dash-card">
+                        <div class="dash-title">Distribución por estado</div>
+                        <div id="stateChart"></div>
+                    </div>
+                    <div class="dash-card">
+                        <div class="dash-title">Top clientes</div>
+                        <div id="clientChart"></div>
+                    </div>
+                </div>
+
+                <div class="dash-card">
+                    <div class="dash-title">Actividad reciente</div>
+                    <div id="recentLogs"></div>
+                </div>
+            </div>
+
+            <!-- APUNTES -->
+            <div class="panel" id="logs">
+                <div class="page-header">
+                    <div>
+                        <div class="page-title">Apuntes</div>
+                        <div class="page-subtitle" id="logsSubtitle">Todos los registros</div>
+                    </div>
+                    <button class="btn btn-primary" id="btnAddLogs">+ Nuevo apunte</button>
+                </div>
+
+                <div class="search-bar">
+                    <div class="search-input-wrapper">
+                        <svg class="search-icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                            <circle cx="11" cy="11" r="8" />
+                            <line x1="21" y1="21" x2="16.65" y2="16.65" />
+                        </svg>
+                        <input type="text" id="searchInput" class="search-input"
+                            placeholder="Buscar orden de servicio...">
+                    </div>
+                    <div class="filters-wrapper" id="filterChips"></div>
+                    <select id="clientFilterSelect" class="form-select client-filter-select">
+                        <option value="all">Todos los clientes</option>
+                    </select>
+                </div>
+
+                <div class="logs-list" id="logsList"></div>
+            </div>
+
+            <!-- CLIENTES -->
+            <div class="panel" id="clients">
+                <div class="page-header">
+                    <div>
+                        <div class="page-title">Clientes</div>
+                        <div class="page-subtitle" id="clientsSubtitle">Gestiona tus clientes</div>
+                    </div>
+                    <button class="btn btn-primary" id="btnAddClient">+ Nuevo cliente</button>
+                </div>
+                <div class="clients-grid" id="clientsGrid"></div>
+            </div>
+
+            <!-- EXPORTAR -->
+            <div class="panel" id="export">
+                <div class="page-header">
+                    <div class="page-title">Exportar</div>
+                </div>
+                <div class="export-grid">
+                    <div class="export-card">
+                        <div class="dash-title" style="margin-bottom:12px;">Formato</div>
+                        <div class="format-options">
+                            <button class="format-btn selected" data-format="json">JSON</button>
+                            <button class="format-btn" data-format="csv">CSV</button>
+                            <button class="format-btn" data-format="markdown">Markdown</button>
+                            <button class="format-btn" data-format="txt">Texto</button>
+                        </div>
+                        <div class="dash-title" style="margin-bottom:12px;">Rango de fechas</div>
+                        <div class="form-row" style="margin-bottom:16px;">
+                            <div class="form-group" style="margin:0;">
+                                <label class="form-label">Desde</label>
+                                <input type="date" id="exportFrom" class="form-input">
+                            </div>
+                            <div class="form-group" style="margin:0;">
+                                <label class="form-label">Hasta</label>
+                                <input type="date" id="exportTo" class="form-input">
+                            </div>
+                        </div>
+                        <button class="btn btn-primary" id="btnExport" style="width:100%;">Descargar</button>
+                    </div>
+                    <div class="export-card">
+                        <div class="dash-title" style="margin-bottom:12px;">Importar JSON</div>
+                        <p style="font-size:13px;color:var(--text2);margin-bottom:12px;">Carga apuntes exportados
+                            previamente desde un archivo JSON.</p>
+                        <input type="file" id="importFile" accept=".json" style="display:none;">
+                        <button class="btn btn-secondary" style="width:100%;" id="btnImport">Seleccionar
+                            archivo</button>
+                    </div>
+                </div>
+            </div>
+
+        </main>
+    </div>
+
+    <!-- MODAL - APUNTE -->
+    <div class="overlay" id="logOverlay">
+        <div class="modal">
+            <div class="modal-title" id="modalTitle">Nuevo apunte</div>
+            <form id="logForm" autocomplete="off">
+                <div class="form-group">
+                    <label class="form-label">Orden de Servicio</label>
+                    <input type="text" id="fOS" class="form-input" placeholder="Ej: OS-2024-001" required>
+                </div>
+
+                <div class="form-row">
+                    <div class="form-group">
+                        <label class="form-label">Fecha</label>
+                        <input type="date" id="fDate" class="form-input" required>
+                    </div>
+                    <div class="form-group">
+                        <label class="form-label">Prioridad</label>
+                        <select id="fPriority" class="form-select">
+                            <option value="baja">Baja</option>
+                            <option value="media" selected>Media</option>
+                            <option value="alta">Alta</option>
+                        </select>
+                    </div>
+                </div>
+
+                <div class="form-group">
+                    <label class="form-label">Horario</label>
+                    <div class="time-block">
+                        <div class="time-inputs">
+                            <div class="time-field">
+                                <span class="time-field-label">Inicio</span>
+                                <input type="text" id="fTimeStart" class="time-input" inputmode="numeric"
+                                    placeholder="HH:MM" maxlength="5" pattern="[0-2][0-9]:[0-5][0-9]" required>
+                            </div>
+                            <span class="time-separator">
+                                <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                                    <line x1="5" y1="12" x2="19" y2="12" />
+                                    <polyline points="12 5 19 12 12 19" />
+                                </svg>
+                            </span>
+                            <div class="time-field">
+                                <span class="time-field-label">Fin</span>
+                                <input type="text" id="fTimeEnd" class="time-input" inputmode="numeric"
+                                    placeholder="HH:MM" maxlength="5" pattern="[0-2][0-9]:[0-5][0-9]">
+                            </div>
+                        </div>
+                        <div class="quick-durations">
+                            <button type="button" class="quick-duration-btn" data-min="30">+30 min</button>
+                            <button type="button" class="quick-duration-btn" data-min="60">+1 h</button>
+                            <button type="button" class="quick-duration-btn" data-min="120">+2 h</button>
+                            <button type="button" class="quick-duration-btn" data-min="240">+4 h</button>
+                        </div>
+                        <div class="duration-badge" id="durationBadge" style="display:none;">
+                            <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                                <circle cx="12" cy="12" r="10" />
+                                <polyline points="12 6 12 12 16 14" />
+                            </svg>
+                            <span id="durationText"></span>
+                        </div>
+                    </div>
+                    <div class="error-msg" id="timeError"></div>
+                </div>
+
+                <div class="form-group">
+                    <label class="form-label">Cliente</label>
+                    <select id="fClient" class="form-select" required>
+                        <option value="">— Seleccionar cliente —</option>
+                    </select>
+                </div>
+
+                <div class="form-group">
+                    <label class="form-label">Estado</label>
+                    <div class="state-grid" id="stateBtns">
+                        <button type="button" class="state-btn selected" data-state="in-progress">En proceso</button>
+                        <button type="button" class="state-btn" data-state="completed">Completado</button>
+                        <button type="button" class="state-btn" data-state="pending">Pendiente</button>
+                        <button type="button" class="state-btn" data-state="awaiting-info">Agt. Info cliente</button>
+                        <button type="button" class="state-btn" data-state="awaiting-tests">Agt. Pruebas
+                            cliente</button>
+                    </div>
+                </div>
+
+                <div class="form-group">
+                    <label class="form-label">Comentario</label>
+                    <textarea id="fComment" class="form-textarea" placeholder="Describe lo que hiciste..."></textarea>
+                </div>
+
+                <div class="modal-footer">
+                    <button type="button" class="btn btn-danger btn-sm" id="btnDeleteLog"
+                        style="display:none;margin-right:auto;">Eliminar</button>
+                    <button type="button" class="btn btn-secondary" id="btnCancelLog">Cancelar</button>
+                    <button type="submit" class="btn btn-primary">Guardar</button>
+                </div>
+            </form>
+        </div>
+    </div>
+
+    <!-- MODAL - CLIENTE -->
+    <div class="overlay" id="clientOverlay">
+        <div class="modal" style="max-width:420px;">
+            <div class="modal-title" id="clientModalTitle">Nuevo cliente</div>
+            <form id="clientForm" autocomplete="off">
+                <div class="form-group">
+                    <label class="form-label">Nombre</label>
+                    <input type="text" id="cName" class="form-input" placeholder="Nombre del cliente" required>
+                </div>
+                <div class="form-group">
+                    <label class="form-label">Descripción (opcional)</label>
+                    <input type="text" id="cDesc" class="form-input" placeholder="Empresa, departamento...">
+                </div>
+                <div class="modal-footer">
+                    <button type="button" class="btn btn-danger btn-sm" id="btnDeleteClient"
+                        style="display:none;margin-right:auto;">Eliminar</button>
+                    <button type="button" class="btn btn-secondary" id="btnCancelClient">Cancelar</button>
+                    <button type="submit" class="btn btn-primary">Guardar</button>
+                </div>
+            </form>
+        </div>
+    </div>
+
+    <div class="toast" id="toast"></div>
+
+
+    <script type="module" src="app.js"></script>
+</body>
+
+</html>
