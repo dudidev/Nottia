@@ -48,22 +48,55 @@ export const db = {
         return c ? c.name : '—';
     },
 
+    setUploaded(id, value) {
+        const log = this.logs.find(l => l.id === id);
+        if (!log) return;
+        log.uploaded = !!value;
+        this.save();
+    },
+
+    nextClientId() {
+        return Math.max(Date.now(), ...this.clients.map(c => c.id + 1));
+    },
+
+    // Resuelve log.clientName -> log.client (crea el cliente si no existe) y limpia clientName.
+    linkClient(log) {
+        const name = typeof log.clientName === 'string' ? log.clientName.trim() : '';
+        delete log.clientName;
+        if (name && name !== '—') {
+            const key = name.toLowerCase();
+            let c = this.clients.find(x => x.name.trim().toLowerCase() === key);
+            if (!c) {
+                c = { id: this.nextClientId(), name, desc: '' };
+                this.clients.push(c);
+            }
+            log.client = c.id;
+        } else if (!this.clientById(log.client)) {
+            log.client = '';
+        }
+    },
+
     importLogs(imported) {
         if (!Array.isArray(imported)) throw new Error('formato inválido');
-        const validated = imported.filter(isValidLog);
         const existingIds = new Set(this.logs.map(l => l.id));
         let added = 0;
-        for (const log of validated) {
-            if (!existingIds.has(log.id)) {
-                this.logs.unshift(log);
-                existingIds.add(log.id);
-                added++;
-            }
+        for (const log of imported) {
+            if (!isValidLog(log) || existingIds.has(log.id)) continue;
+            this.linkClient(log);
+            this.logs.unshift(log);
+            existingIds.add(log.id);
+            added++;
         }
         this.save();
         return added;
     }
 };
+
+// Migración: apuntes importados antes con clientName sin enlazar.
+if (db.logs.some(l => 'clientName' in l)) {
+    db.logs.forEach(l => { if ('clientName' in l) db.linkClient(l); });
+    db.save();
+}
 
 export function getTheme() {
     return storage.get(THEME_KEY, null) === 'dark' || localStorage.getItem(THEME_KEY) === 'dark';

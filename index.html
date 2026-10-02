@@ -35,6 +35,15 @@
                     </svg>
                     <span>Apuntes</span>
                 </button>
+                <button class="nav-item" data-tab="report" title="Informe">
+                    <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                        <path d="M14 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V8z" />
+                        <polyline points="14 2 14 8 20 8" />
+                        <line x1="8" y1="13" x2="16" y2="13" />
+                        <line x1="8" y1="17" x2="16" y2="17" />
+                    </svg>
+                    <span>Informe</span>
+                </button>
                 <button class="nav-item" data-tab="clients" title="Clientes">
                     <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
                         <path d="M17 21v-2a4 4 0 0 0-4-4H5a4 4 0 0 0-4 4v2" />
@@ -121,6 +130,21 @@
                 <div class="logs-list" id="logsList"></div>
             </div>
 
+            <!-- INFORME -->
+            <div class="panel" id="report">
+                <div class="page-header">
+                    <div>
+                        <div class="page-title">Informe del día</div>
+                        <div class="page-subtitle" id="reportSummary"></div>
+                    </div>
+                    <div class="report-actions">
+                        <input type="date" id="reportDate" class="form-input">
+                        <button class="btn btn-primary" id="btnCopyReport">Copiar informe</button>
+                    </div>
+                </div>
+                <div class="report-list" id="reportList"></div>
+            </div>
+
             <!-- CLIENTES -->
             <div class="panel" id="clients">
                 <div class="page-header">
@@ -205,8 +229,7 @@
                         <div class="time-inputs">
                             <div class="time-field">
                                 <span class="time-field-label">Inicio</span>
-                                <input type="text" id="fTimeStart" class="time-input" inputmode="numeric"
-                                    placeholder="HH:MM" maxlength="5" pattern="[0-2][0-9]:[0-5][0-9]" required>
+                                <div class="time-select" id="fTimeStart"></div>
                             </div>
                             <span class="time-separator">
                                 <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
@@ -216,8 +239,7 @@
                             </span>
                             <div class="time-field">
                                 <span class="time-field-label">Fin</span>
-                                <input type="text" id="fTimeEnd" class="time-input" inputmode="numeric"
-                                    placeholder="HH:MM" maxlength="5" pattern="[0-2][0-9]:[0-5][0-9]">
+                                <div class="time-select" id="fTimeEnd" data-optional></div>
                             </div>
                         </div>
                         <div class="quick-durations">

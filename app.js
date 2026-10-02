@@ -1,4 +1,5 @@
-import { escapeHTML, sanitizeCSVField, fmtDate, pad2, maskTimeInput, isValidTime } from './utils.js';
+import { escapeHTML, sanitizeCSVField, fmtDate, pad2, isValidTime, todayStr } from './utils.js';
+import { initReport, renderReport } from './reports.js';
 import { db, STATE_COLORS, STATE_LABELS, getTheme, setTheme } from './state.js';
 
 const $ = id => document.getElementById(id);
@@ -78,8 +79,9 @@ function openLogModal(id) {
     } else {
         $('modalTitle').textContent = 'Nuevo apunte';
         const now = new Date();
-        $('fDate').valueAsDate = now;
+        $('fDate').value = todayStr();
         $('fTimeStart').value = `${pad2(now.getHours())}:${pad2(now.getMinutes())}`;
+        $('fTimeEnd').value = '';
         selectedState = 'in-progress';
         $('btnDeleteLog').style.display = 'none';
     }
@@ -125,8 +127,42 @@ function updateDurationBadge() {
     badge.style.display = 'inline-flex';
 }
 
-maskTimeInput($('fTimeStart'));
-maskTimeInput($('fTimeEnd'));
+function createTimePicker(el) {
+    const optional = el.hasAttribute('data-optional');
+    const mk = (max) => {
+        const s = document.createElement('select');
+        if (optional) s.appendChild(new Option('--', ''));
+        for (let i = 0; i < max; i++) s.appendChild(new Option(pad2(i), pad2(i)));
+        return s;
+    };
+    const hSel = mk(24), mSel = mk(60);
+    const sep = document.createElement('span');
+    sep.className = 'time-select-sep';
+    sep.textContent = ':';
+    el.append(hSel, sep, mSel);
+
+    const emit = () => el.dispatchEvent(new Event('input', { bubbles: true }));
+    hSel.addEventListener('change', () => {
+        if (optional) mSel.value = hSel.value ? (mSel.value || '00') : '';
+        emit();
+    });
+    mSel.addEventListener('change', () => {
+        if (optional && mSel.value && !hSel.value) hSel.value = '00';
+        emit();
+    });
+
+    Object.defineProperty(el, 'value', {
+        get: () => (hSel.value && mSel.value ? `${hSel.value}:${mSel.value}` : ''),
+        set: v => {
+            if (isValidTime(v)) { [hSel.value, mSel.value] = v.split(':'); }
+            else { hSel.value = optional ? '' : '00'; mSel.value = optional ? '' : '00'; }
+        }
+    });
+    el.value = '';
+}
+
+createTimePicker($('fTimeStart'));
+createTimePicker($('fTimeEnd'));
 $('fTimeStart').addEventListener('input', updateDurationBadge);
 $('fTimeEnd').addEventListener('input', updateDurationBadge);
 
@@ -175,6 +211,7 @@ $('logForm').addEventListener('submit', e => {
         timeStart,
         timeEnd,
         client: $('fClient').value ? Number($('fClient').value) : '',
+        uploaded: editingLogId != null ? !!db.logs.find(l => l.id === editingLogId)?.uploaded : false,
         state: selectedState,
         comment: $('fComment').value.trim()
     };
@@ -306,7 +343,8 @@ function renderLogsList() {
     const container = $('logsList');
     const searchQuery = $('searchInput').value.toLowerCase();
 
-    let filtered = db.logs;
+    let filtered = [...db.logs].sort((x, y) =>
+        y.date.localeCompare(x.date) || (x.timeStart || '').localeCompare(y.timeStart || '') || x.id - y.id);
     if (selectedFilter !== 'all') filtered = filtered.filter(l => l.state === selectedFilter);
     if (selectedClient !== 'all') filtered = filtered.filter(l => l.client === selectedClient);
     if (searchQuery) filtered = filtered.filter(l => l.os.toLowerCase().includes(searchQuery));
@@ -340,12 +378,24 @@ function renderLogsList() {
                 </div>
                 ${log.comment ? `<div class="log-comment">${escapeHTML(log.comment)}</div>` : ''}
             </div>
-            <span class="status-badge" style="background:${stateColor}">${escapeHTML(stateLabel)}</span>
+            <div class="log-side">
+                <span class="status-badge" style="background:${stateColor}">${escapeHTML(stateLabel)}</span>
+                <label class="upload-check"><input type="checkbox" data-upload-id="${log.id}" ${log.uploaded ? 'checked' : ''}><span>Cargado</span></label>
+            </div>
         </div>`;
     }).join('');
 
     container.querySelectorAll('[data-log-id]').forEach(card => {
-        card.addEventListener('click', () => openLogModal(Number(card.dataset.logId)));
+        card.addEventListener('click', e => {
+            if (e.target.closest('.upload-check')) return;
+            openLogModal(Number(card.dataset.logId));
+        });
+    });
+    container.querySelectorAll('[data-upload-id]').forEach(cb => {
+        cb.addEventListener('change', () => {
+            db.setUploaded(Number(cb.dataset.uploadId), cb.checked);
+            render();
+        });
     });
 }
 
@@ -358,7 +408,7 @@ function renderDashboard() {
     const byState = {};
     Object.keys(STATE_LABELS).forEach(k => { byState[k] = logs.filter(l => l.state === k).length; });
 
-    const today = new Date().toISOString().split('T')[0];
+    const today = todayStr();
     const todayLogs = logs.filter(l => l.date === today).length;
     $('dashSubtitle').textContent = `${todayLogs} hoy · ${total} total`;
 
@@ -561,7 +611,9 @@ function render() {
     renderLogsList();
     buildFilters();
     renderClients();
+    renderReport();
 }
 
+initReport(toast, render);
 render();
 goTab('dashboard');
