@@ -17,6 +17,11 @@ export function sanitizeCSVField(value) {
     return `"${v.replace(/"/g, '""')}"`;
 }
 
+export function todayStr() {
+    const d = new Date();
+    return `${d.getFullYear()}-${pad2(d.getMonth() + 1)}-${pad2(d.getDate())}`;
+}
+
 export function fmtDate(dateStr) {
     if (!dateStr) return '';
     const d = new Date(dateStr + 'T00:00:00');
@@ -26,28 +31,6 @@ export function fmtDate(dateStr) {
 
 export function pad2(n) {
     return String(n).padStart(2, '0');
-}
-
-// Máscara HH:MM en formato 24h, sin depender del locale del navegador.
-export function maskTimeInput(el) {
-    el.addEventListener('input', () => {
-        let digits = el.value.replace(/\D/g, '').slice(0, 4);
-        if (digits.length >= 3) {
-            let hh = digits.slice(0, 2);
-            let mm = digits.slice(2);
-            if (Number(hh) > 23) hh = '23';
-            if (mm.length === 2 && Number(mm) > 59) mm = '59';
-            el.value = `${hh}:${mm}`;
-        } else if (digits.length >= 1) {
-            if (digits.length === 2 && Number(digits) > 23) digits = '23';
-            el.value = digits;
-        } else {
-            el.value = '';
-        }
-    });
-    el.addEventListener('blur', () => {
-        if (el.value && !isValidTime(el.value)) el.value = '';
-    });
 }
 
 export function isValidTime(value) {
