@@ -80,7 +80,6 @@ function openLogModal(id) {
         $('modalTitle').textContent = 'Nuevo apunte';
         const now = new Date();
         $('fDate').value = todayStr();
-        $('fTimeStart').value = `${pad2(now.getHours())}:${pad2(now.getMinutes())}`;
         $('fTimeEnd').value = '';
         selectedState = 'in-progress';
         $('btnDeleteLog').style.display = 'none';
@@ -166,6 +165,15 @@ createTimePicker($('fTimeEnd'));
 $('fTimeStart').addEventListener('input', updateDurationBadge);
 $('fTimeEnd').addEventListener('input', updateDurationBadge);
 
+// ─── BOTONES "AHORA" ───
+function setNow(field) {
+    const n = new Date();
+    field.value = `${pad2(n.getHours())}:${pad2(n.getMinutes())}`;
+    field.dispatchEvent(new Event('input', { bubbles: true }));
+}
+$('btnNowStart').addEventListener('click', () => setNow($('fTimeStart')));
+$('btnNowEnd').addEventListener('click', () => setNow($('fTimeEnd')));
+
 document.querySelectorAll('.quick-duration-btn').forEach(btn => {
     btn.addEventListener('click', () => {
         const start = $('fTimeStart').value;
@@ -192,9 +200,16 @@ $('logForm').addEventListener('submit', e => {
         return;
     }
 
+    if (timeEnd && isValidTime(timeEnd) && timeEnd <= timeStart) {
+        errorMsg.textContent = 'La hora final no puede ser menor o igual a la hora inicial.';
+        errorMsg.classList.add('show');
+        return;
+    }
+
     const overlap = findOverlaps(date, timeStart, timeEnd, editingLogId);
     if (overlap.length) {
-        errorMsg.textContent = `Conflicto de horario con ${overlap.length} apunte(s). Revisa los tiempos.`;
+        const detail = overlap.map(l => `• ${l.os} (${l.timeStart}–${l.timeEnd || '?'})`).join('\n');
+        errorMsg.textContent = `Conflicto con ${overlap.length} apunte(s):\n${detail}`;
         errorMsg.classList.add('show');
         return;
     }

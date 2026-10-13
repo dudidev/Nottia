@@ -1308,3 +1308,41 @@ svg {
         flex: 1;
     }
 }
+
+/* Botón "Ahora" */
+.time-field {
+    display: flex;
+    flex-direction: column;
+    gap: 4px;
+}
+
+.now-btn {
+    display: inline-flex;
+    align-items: center;
+    gap: 4px;
+    padding: 4px 10px;
+    border-radius: 6px;
+    border: 1px solid var(--border);
+    background: var(--surface2);
+    color: var(--text2);
+    font-size: 11px;
+    font-weight: 600;
+    cursor: pointer;
+    transition: background 0.15s, border-color 0.15s;
+}
+
+.now-btn:hover {
+    background: var(--primary);
+    color: #fff;
+    border-color: var(--primary);
+}
+
+.now-btn svg {
+    width: 12px;
+    height: 12px;
+}
+
+/* Error multilínea (conflictos) */
+.error-msg {
+    white-space: pre-line;
+}
