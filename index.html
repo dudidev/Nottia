@@ -5,6 +5,9 @@
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0, viewport-fit=cover">
     <title>Nottia</title>
+    <link rel="icon" type="image/svg+xml" href="favicon.svg">
+    <link rel="apple-touch-icon" href="apple-touch-icon.png">
+    <meta name="theme-color" content="#087F72">
     <link rel="stylesheet" href="styles.css">
 </head>
 
@@ -14,8 +17,24 @@
         <!-- SIDEBAR -->
         <aside class="sidebar">
             <div class="sidebar-logo">
-                <h1>Nottia</h1>
-                <span>Registro de trabajo</span>
+                <h1>
+                    <svg class="logo-mark" viewBox="0 0 64 64" aria-hidden="true">
+                        <defs>
+                            <linearGradient id="nottiaG" x1="0" y1="0" x2="0" y2="1">
+                                <stop offset="0" stop-color="#12A596" />
+                                <stop offset="1" stop-color="#06665C" />
+                            </linearGradient>
+                        </defs>
+                        <rect width="64" height="64" rx="15" fill="url(#nottiaG)" />
+                        <rect x=".5" y=".5" width="63" height="63" rx="14.5" fill="none" stroke="#fff"
+                            stroke-opacity=".18" />
+                        <path d="M17 46V18l22 28V18" fill="none" stroke="#fff" stroke-width="6" stroke-linecap="round"
+                            stroke-linejoin="round" />
+                        <circle cx="48" cy="46" r="3.5" fill="#FFC078" />
+                    </svg>
+                    <span class="logo-text">Nottia</span>
+                </h1>
+                <span class="logo-sub">Registro de trabajo</span>
             </div>
             <nav class="nav">
                 <button class="nav-item active" data-tab="dashboard" title="Dashboard">
