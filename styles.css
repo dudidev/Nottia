@@ -1165,6 +1165,98 @@ button:disabled,
     display: block;
 }
 
+/* Disponibilidad y chips */
+.avail {
+    display: flex;
+    flex-direction: column;
+    gap: 6px;
+    margin-bottom: 12px;
+}
+
+.avail-caption {
+    font-size: 11px;
+    font-weight: 600;
+    color: var(--text3);
+}
+
+.strip {
+    position: relative;
+    height: 24px;
+    overflow: hidden;
+    border-radius: var(--radius-sm);
+    background: var(--surface2);
+}
+
+.strip-block {
+    position: absolute;
+    top: 3px;
+    bottom: 3px;
+    display: flex;
+    align-items: center;
+    padding: 0 5px;
+    overflow: hidden;
+    border-radius: 5px;
+    background: var(--primary);
+    color: var(--on-primary);
+    font-size: 10px;
+    font-weight: 600;
+    white-space: nowrap;
+}
+
+.strip-scale {
+    display: flex;
+    justify-content: space-between;
+    font-size: 10px;
+    color: var(--text3);
+    font-variant-numeric: tabular-nums;
+}
+
+.chip-row {
+    display: flex;
+    flex-wrap: wrap;
+    gap: 6px;
+}
+
+.chip-row:empty {
+    display: none;
+}
+
+.form-group>.chip-row {
+    margin-top: 8px;
+}
+
+.chip {
+    padding: 5px 11px;
+    border: 0;
+    border-radius: 999px;
+    background: var(--surface2);
+    color: var(--text2);
+    font-size: 12px;
+    font-weight: 600;
+    cursor: pointer;
+    transition: background-color .18s var(--ease), color .18s var(--ease);
+}
+
+.chip:hover {
+    background: var(--primary-soft);
+    color: var(--primary);
+}
+
+.chip-free {
+    background: var(--green-soft);
+    color: var(--green);
+}
+
+.chip-free:hover {
+    background: var(--green);
+    color: var(--bg);
+}
+
+.avail-empty {
+    font-size: 12px;
+    color: var(--text3);
+}
+
 /* ===== Varios ===== */
 .empty-state {
     padding: 44px 16px;
