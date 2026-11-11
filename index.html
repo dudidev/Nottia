@@ -234,7 +234,9 @@
             <form id="logForm" autocomplete="off">
                 <div class="form-group">
                     <label class="form-label">Orden de Servicio</label>
-                    <input type="text" id="fOS" class="form-input" placeholder="Ej: OS-2024-001" required>
+                    <input type="text" id="fOS" class="form-input" placeholder="Ej: 228934" list="osDatalist" required>
+                    <datalist id="osDatalist"></datalist>
+                    <div class="chip-row" id="osChips"></div>
                 </div>
 
                 <div class="form-row">
@@ -254,6 +256,7 @@
 
                 <div class="form-group">
                     <label class="form-label">Horario</label>
+                    <div class="avail" id="dayAvailability"></div>
                     <div class="time-block">
                         <div class="time-inputs">
                             <div class="time-field">
