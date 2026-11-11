@@ -144,6 +144,16 @@
                     <select id="clientFilterSelect" class="form-select client-filter-select">
                         <option value="all">Todos los clientes</option>
                     </select>
+                    <button type="button" class="btn btn-secondary btn-sm sort-btn" id="btnSortTime"
+                        title="Hora: de menor a mayor">
+                        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                            <line x1="12" y1="19" x2="12" y2="5" />
+                            <polyline points="5 12 12 5 19 12" />
+                        </svg>
+                        Hora
+                    </button>
+                    <label class="upload-check filter-check"><input type="checkbox" id="filterPending"><span>Sin
+                            cargar</span></label>
                 </div>
 
                 <div class="logs-list" id="logsList"></div>
@@ -224,7 +234,9 @@
             <form id="logForm" autocomplete="off">
                 <div class="form-group">
                     <label class="form-label">Orden de Servicio</label>
-                    <input type="text" id="fOS" class="form-input" placeholder="Ej: OS-2024-001" required>
+                    <input type="text" id="fOS" class="form-input" placeholder="Ej: 228934" list="osDatalist" required>
+                    <datalist id="osDatalist"></datalist>
+                    <div class="chip-row" id="osChips"></div>
                 </div>
 
                 <div class="form-row">
@@ -244,6 +256,7 @@
 
                 <div class="form-group">
                     <label class="form-label">Horario</label>
+                    <div class="avail" id="dayAvailability"></div>
                     <div class="time-block">
                         <div class="time-inputs">
                             <div class="time-field">
