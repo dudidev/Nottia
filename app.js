@@ -1,5 +1,6 @@
 import { escapeHTML, sanitizeCSVField, fmtDate, pad2, isValidTime, todayStr } from './utils.js';
 import { initReport, renderReport } from './reports.js';
+import { renderAvailability } from './availability.js';
 import { db, STATE_COLORS, STATE_LABELS, getTheme, setTheme } from './state.js';
 
 const $ = id => document.getElementById(id);
@@ -89,10 +90,43 @@ function openLogModal(id) {
 
     document.querySelectorAll('.state-btn').forEach(b => b.classList.toggle('selected', b.dataset.state === selectedState));
     updateDurationBadge();
+    refreshAvailability();
+    refreshOSSuggestions();
     $('logOverlay').classList.add('active');
 }
 
 function closeLogModal() { $('logOverlay').classList.remove('active'); }
+
+// ─── DISPONIBILIDAD Y SUGERENCIAS DE OS ───
+function refreshAvailability() {
+    renderAvailability($('dayAvailability'), $('fDate').value, editingLogId, (start, end) => {
+        $('fTimeStart').value = start;
+        $('fTimeEnd').value = end;
+        $('timeError').classList.remove('show');
+        updateDurationBadge();
+    });
+}
+$('fDate').addEventListener('change', refreshAvailability);
+
+function applyOSClient() {
+    const hit = db.osList().find(o => o.os.toLowerCase() === $('fOS').value.trim().toLowerCase());
+    if (hit && hit.client && !$('fClient').value) $('fClient').value = hit.client;
+}
+
+function refreshOSSuggestions() {
+    const list = db.osList();
+    $('osDatalist').replaceChildren(...list.map(o => Object.assign(document.createElement('option'), { value: o.os })));
+    $('osChips').innerHTML = editingLogId != null ? '' : list.slice(0, 5)
+        .map(o => `<button type="button" class="chip" data-os="${escapeHTML(o.os)}">${escapeHTML(o.os)}</button>`).join('');
+}
+
+$('osChips').addEventListener('click', e => {
+    const b = e.target.closest('[data-os]');
+    if (!b) return;
+    $('fOS').value = b.dataset.os;
+    applyOSClient();
+});
+$('fOS').addEventListener('input', applyOSClient);
 
 $('btnAddDesktop').addEventListener('click', () => openLogModal(null));
 $('btnAddLogs').addEventListener('click', () => openLogModal(null));
