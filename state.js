@@ -55,6 +55,18 @@ export const db = {
         this.save();
     },
 
+    osList() {
+        const seen = new Map();
+        [...this.logs]
+            .sort((a, b) => b.date.localeCompare(a.date) || (b.timeStart || '').localeCompare(a.timeStart || '') || b.id - a.id)
+            .forEach(l => {
+                const os = l.os.trim();
+                const key = os.toLowerCase();
+                if (os && !seen.has(key)) seen.set(key, { os, client: l.client || '' });
+            });
+        return [...seen.values()];
+    },
+
     nextClientId() {
         return Math.max(Date.now(), ...this.clients.map(c => c.id + 1));
     },
