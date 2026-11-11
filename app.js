@@ -10,6 +10,8 @@ let selectedClient = 'all';
 let selectedFormat = 'json';
 let editingLogId = null;
 let editingClientId = null;
+let sortAsc = true;
+let onlyPending = false;
 let isDark = getTheme();
 
 // ─── TEMA ───
@@ -358,8 +360,10 @@ function renderLogsList() {
     const container = $('logsList');
     const searchQuery = $('searchInput').value.toLowerCase();
 
+    const dir = sortAsc ? 1 : -1;
     let filtered = [...db.logs].sort((x, y) =>
-        y.date.localeCompare(x.date) || (x.timeStart || '').localeCompare(y.timeStart || '') || x.id - y.id);
+        y.date.localeCompare(x.date) || dir * (x.timeStart || '').localeCompare(y.timeStart || '') || dir * (x.id - y.id));
+    if (onlyPending) filtered = filtered.filter(l => !l.uploaded);
     if (selectedFilter !== 'all') filtered = filtered.filter(l => l.state === selectedFilter);
     if (selectedClient !== 'all') filtered = filtered.filter(l => l.client === selectedClient);
     if (searchQuery) filtered = filtered.filter(l => l.os.toLowerCase().includes(searchQuery));
@@ -415,6 +419,17 @@ function renderLogsList() {
 }
 
 $('searchInput').addEventListener('input', renderLogsList);
+$('btnSortTime').addEventListener('click', () => {
+    sortAsc = !sortAsc;
+    $('btnSortTime').classList.toggle('desc', !sortAsc);
+    $('btnSortTime').title = sortAsc ? 'Hora: de menor a mayor' : 'Hora: de mayor a menor';
+    renderLogsList();
+});
+
+$('filterPending').addEventListener('change', e => {
+    onlyPending = e.target.checked;
+    renderLogsList();
+});
 
 // ─── DASHBOARD ───
 function renderDashboard() {
