@@ -428,8 +428,7 @@ button:disabled,
     line-height: 1.5;
 }
 
-.form-select,
-.client-filter-select {
+.form-select {
     appearance: none;
     -webkit-appearance: none;
     padding-right: 32px;
@@ -556,7 +555,7 @@ button:disabled,
     width: auto;
     max-width: 220px;
     min-height: var(--control-height-sm);
-    padding: 5px 30px 5px 12px;
+    padding: 5px 12px;
     font-size: 13px;
 }
 
@@ -1204,11 +1203,17 @@ button:disabled,
 }
 
 .strip-scale {
-    display: flex;
-    justify-content: space-between;
+    position: relative;
+    height: 12px;
     font-size: 10px;
     color: var(--text3);
     font-variant-numeric: tabular-nums;
+}
+
+.strip-scale span {
+    position: absolute;
+    top: 0;
+    transform: translateX(-50%);
 }
 
 .chip-row {

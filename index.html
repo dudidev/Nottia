@@ -141,9 +141,9 @@
                             placeholder="Buscar orden de servicio...">
                     </div>
                     <div class="filters-wrapper" id="filterChips"></div>
-                    <select id="clientFilterSelect" class="form-select client-filter-select">
-                        <option value="all">Todos los clientes</option>
-                    </select>
+                    <input type="search" id="clientFilterInput" class="form-input client-filter-select"
+                        placeholder="Cliente (3+ letras)" list="clientFilterList">
+                    <datalist id="clientFilterList"></datalist>
                     <button type="button" class="btn btn-secondary btn-sm sort-btn" id="btnSortTime"
                         title="Hora: de menor a mayor">
                         <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
@@ -307,9 +307,10 @@
 
                 <div class="form-group">
                     <label class="form-label">Cliente</label>
-                    <select id="fClient" class="form-select" required>
-                        <option value="">— Seleccionar cliente —</option>
-                    </select>
+                    <input type="text" id="fClientInput" class="form-input" placeholder="Escribe 3 letras para buscar"
+                        list="clientList">
+                    <input type="hidden" id="fClient">
+                    <datalist id="clientList"></datalist>
                 </div>
 
                 <div class="form-group">
