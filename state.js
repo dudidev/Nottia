@@ -62,7 +62,8 @@ export const db = {
             .forEach(l => {
                 const os = l.os.trim();
                 const key = os.toLowerCase();
-                if (os && !seen.has(key)) seen.set(key, { os, client: l.client || '' });
+                const priority = ['baja', 'media', 'alta'].includes(l.priority) ? l.priority : 'media';
+                if (os && !seen.has(key)) seen.set(key, { os, client: l.client || '', priority });
             });
         return [...seen.values()];
     },
