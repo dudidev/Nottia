@@ -4,10 +4,12 @@ import { renderAvailability } from './availability.js';
 import { db, STATE_COLORS, STATE_LABELS, getTheme, setTheme } from './state.js';
 
 const $ = id => document.getElementById(id);
+const norm = s => s.toLowerCase().normalize('NFD').replace(/[\u0300-\u036f]/g, '').trim();
 
 let selectedState = 'in-progress';
 let selectedFilter = 'all';
-let selectedClient = 'all';
+let clientQuery = '';
+let priorityTouched = false;
 let selectedFormat = 'json';
 let editingLogId = null;
 let editingClientId = null;
@@ -58,13 +60,11 @@ function findOverlaps(date, startTime, endTime, excludeLogId = null) {
 // ─── MODAL APUNTE ───
 function openLogModal(id) {
     editingLogId = id ?? null;
+    priorityTouched = editingLogId != null;
     $('logForm').reset();
     $('timeError').classList.remove('show');
 
-    const sel = $('fClient');
-    sel.innerHTML = '';
-    sel.appendChild(new Option('— Seleccionar cliente —', ''));
-    db.clients.forEach(c => sel.appendChild(new Option(c.name, c.id)));
+    setClient('');
 
     if (editingLogId != null) {
         const log = db.logs.find(l => l.id === editingLogId);
@@ -75,7 +75,7 @@ function openLogModal(id) {
         $('fPriority').value = log.priority || 'media';
         $('fTimeStart').value = log.timeStart || '';
         $('fTimeEnd').value = log.timeEnd || '';
-        $('fClient').value = log.client || '';
+        setClient(log.client);
         $('fComment').value = log.comment || '';
         selectedState = log.state in STATE_LABELS ? log.state : 'in-progress';
         $('btnDeleteLog').style.display = 'inline-flex';
@@ -110,8 +110,30 @@ $('fDate').addEventListener('change', refreshAvailability);
 
 function applyOSClient() {
     const hit = db.osList().find(o => o.os.toLowerCase() === $('fOS').value.trim().toLowerCase());
-    if (hit && hit.client && !$('fClient').value) $('fClient').value = hit.client;
+    if (!hit) return;
+    if (hit.client && !$('fClient').value) setClient(hit.client);
+    if (!priorityTouched) $('fPriority').value = hit.priority;
 }
+$('fPriority').addEventListener('change', () => { priorityTouched = true; });
+
+function setClient(id) {
+    const c = db.clientById(id);
+    $('fClient').value = c ? c.id : '';
+    $('fClientInput').value = c ? c.name : '';
+}
+
+function suggestClients(input, list) {
+    const q = norm(input.value);
+    list.replaceChildren(...(q.length < 3 ? [] : db.clients
+        .filter(c => norm(c.name).includes(q)).slice(0, 8)
+        .map(c => Object.assign(document.createElement('option'), { value: c.name }))));
+}
+
+$('fClientInput').addEventListener('input', () => {
+    suggestClients($('fClientInput'), $('clientList'));
+    const hit = db.clients.find(c => norm(c.name) === norm($('fClientInput').value));
+    $('fClient').value = hit ? hit.id : '';
+});
 
 function refreshOSSuggestions() {
     const list = db.osList();
@@ -131,7 +153,15 @@ $('fOS').addEventListener('input', applyOSClient);
 $('btnAddDesktop').addEventListener('click', () => openLogModal(null));
 $('btnAddLogs').addEventListener('click', () => openLogModal(null));
 $('btnCancelLog').addEventListener('click', closeLogModal);
-$('logOverlay').addEventListener('click', e => { if (e.target === $('logOverlay')) closeLogModal(); });
+
+let downOnOverlay = false;
+$('logOverlay').addEventListener('pointerdown', e => { downOnOverlay = e.target === $('logOverlay'); });
+$('logOverlay').addEventListener('click', e => {
+    if (e.target !== $('logOverlay') || !downOnOverlay) return;
+    const dirty = editingLogId == null && ($('fOS').value.trim() || $('fComment').value.trim() || $('fClient').value);
+    if (dirty && !confirm('¿Descartar este apunte? Se perderá lo escrito.')) return;
+    closeLogModal();
+});
 
 document.querySelectorAll('.state-btn').forEach(btn => {
     btn.addEventListener('click', e => {
@@ -254,6 +284,12 @@ $('logForm').addEventListener('submit', e => {
     const os = $('fOS').value.trim();
     if (!os) return;
 
+    if (!$('fClient').value) {
+        toast('Selecciona un cliente de la lista');
+        $('fClientInput').focus();
+        return;
+    }
+
     const log = {
         id: editingLogId ?? Date.now(),
         os,
@@ -364,21 +400,18 @@ function buildFilters() {
         btn.textContent = f.label;
         btn.addEventListener('click', () => {
             selectedFilter = f.key;
+            buildFilters();
             renderLogsList();
         });
         container.appendChild(btn);
     });
 
-    const clientSelect = $('clientFilterSelect');
-    const prevValue = String(selectedClient);
-    clientSelect.innerHTML = '<option value="all">Todos los clientes</option>';
-    db.clients.forEach(c => clientSelect.appendChild(new Option(c.name, c.id)));
-    clientSelect.value = prevValue;
-    if (clientSelect.value !== prevValue) { selectedClient = 'all'; clientSelect.value = 'all'; }
 }
 
-$('clientFilterSelect').addEventListener('change', e => {
-    selectedClient = e.target.value === 'all' ? 'all' : Number(e.target.value);
+$('clientFilterInput').addEventListener('input', e => {
+    suggestClients(e.target, $('clientFilterList'));
+    const q = norm(e.target.value);
+    clientQuery = q.length >= 3 ? q : '';
     renderLogsList();
 });
 
@@ -399,7 +432,7 @@ function renderLogsList() {
         y.date.localeCompare(x.date) || dir * (x.timeStart || '').localeCompare(y.timeStart || '') || dir * (x.id - y.id));
     if (onlyPending) filtered = filtered.filter(l => !l.uploaded);
     if (selectedFilter !== 'all') filtered = filtered.filter(l => l.state === selectedFilter);
-    if (selectedClient !== 'all') filtered = filtered.filter(l => l.client === selectedClient);
+    if (clientQuery) filtered = filtered.filter(l => norm(db.clientName(l.client)).includes(clientQuery));
     if (searchQuery) filtered = filtered.filter(l => l.os.toLowerCase().includes(searchQuery));
 
     $('logsSubtitle').textContent = `${filtered.length} apunte${filtered.length !== 1 ? 's' : ''}`;
