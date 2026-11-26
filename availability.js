@@ -1,8 +1,8 @@
 import { db } from './state.js';
 import { escapeHTML, pad2 } from './utils.js';
 
-const DAY_START = 6 * 60;
-const DAY_END = 22 * 60;
+const DAY_START = 7 * 60 + 30;
+const DAY_END = 17 * 60;
 const MIN_GAP = 15;
 
 const minutesOf = t => {
@@ -47,7 +47,9 @@ export function renderAvailability(el, date, excludeId, onPick) {
         }).join('');
 
     let scale = '';
-    for (let m = DAY_START; m <= DAY_END; m += 240) scale += `<span>${pad2(m / 60)}</span>`;
+    for (let h = Math.ceil(DAY_START / 60); h * 60 <= DAY_END; h += 2) {
+        scale += `<span style="left:${pct(h * 60)}%">${pad2(h)}</span>`;
+    }
 
     const chips = gapsOf(busy).map(([s, e]) => e === DAY_END
         ? `<button type="button" class="chip chip-free" data-s="${hhmm(s)}" data-e="">Desde ${hhmm(s)}</button>`
